@@ -91,11 +91,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void init(AActor* player, AActor* flag);
 	void cleanup();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		AActor* p_Player = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		AActor* p_PlayerBase = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		AActor* p_MyBase = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		AActor* p_Flag = nullptr;
 protected:
-	TArray<UCTFState*> m_States;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UCTFPursuitFlagState* pursuitState;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UCTFReturnAndProtectFlagState* returnAndProtectState;
 	UCTFState* m_CurrentState = nullptr;
 
-	AActor* p_Player = nullptr;
-	AActor* p_Flag = nullptr;
 	bool m_IsInit = false;
 };

@@ -94,7 +94,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<AActor> wallClass;
-private:
+protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<FBox2D> m_ProhibitedSpawns;
 	Node nodes[40][40];
 	int xHeight = 40;
 	int yHeight = 40;

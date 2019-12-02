@@ -17,7 +17,7 @@ void UCTFStateMachine::HandleState(ACTF_AICharacter* seeker, float deltaTime)
 {
 	if (seeker->HasFlag())
 	{
-
+		ChangeToState(returnAndProtectState); //change to state checks if already the state
 	}
 	m_CurrentState->RunState(seeker, deltaTime);
 }
@@ -44,11 +44,13 @@ void UCTFStateMachine::init(AActor* player, AActor* flag)
 			break;
 		}
 		check(IsValid(pathfinder));
-		UCTFPursuitFlagState* pursuitFlagState = NewObject<UCTFPursuitFlagState>();
-		pursuitFlagState->SetPathfinder(pathfinder);
-		pursuitFlagState->SetTarget(p_Flag);
-		m_States.Add(pursuitFlagState);
-		ChangeToState(pursuitFlagState);
+		pursuitState = NewObject<UCTFPursuitFlagState>();
+		returnAndProtectState = NewObject<UCTFReturnAndProtectFlagState>();
+		returnAndProtectState->SetTarget(p_Flag);
+		returnAndProtectState->SetPathfinder(pathfinder);
+		pursuitState->SetPathfinder(pathfinder);
+		pursuitState->SetTarget(p_Flag);
+		ChangeToState(pursuitState);
 	}
 }
 

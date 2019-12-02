@@ -35,13 +35,35 @@ void APathfindingManager::generateWalls()
 	{
 		int xPos = rand() % 32;
 		int yPos = rand() % 32;
-		if (!nodes[xPos][yPos].isWall() && (xPos < 10 || xPos > 14) && (yPos < 10 || yPos > 14)) //he patrols in 10 < x < 14 && 10 < y < 14
+		if (!nodes[xPos][yPos].isWall()) //he patrols in 10 < x < 14 && 10 < y < 14
 		{
-			nodes[xPos][yPos].setIsWall(true);
 			FVector pos = getWorldPositionFromGridPosition(nodes[xPos][yPos].getGridPos());
-			m_WallPositions.Add(pos);
+			FVector2D pos2D = FVector2D(pos.X, pos.Y);
+			bool valid = true;
+			for (int i = 0; i < m_ProhibitedSpawns.Num(); i++)
+			{
+				float relX = FMath::Abs((pos2D.X - m_ProhibitedSpawns[i].GetCenter().X));
+				float relY = FMath::Abs((pos2D.Y - m_ProhibitedSpawns[i].GetCenter().Y));
+				float extX = m_ProhibitedSpawns[i].GetExtent().X;
+				float extY = m_ProhibitedSpawns[i].GetExtent().Y;
+				if (relX < extX &&
+					relY < extY)
+				{
+					i--;
+					eCheck++;
+					valid = false;
+					break;
+				}
+			}
+			if (valid)
+			{
+				nodes[xPos][yPos].setIsWall(true);
 
-			AActor* wall = GetWorld()->SpawnActor(wallClass, &pos, &FRotator::ZeroRotator);
+				m_WallPositions.Add(pos);
+
+				AActor* wall = GetWorld()->SpawnActor(wallClass, &pos, &FRotator::ZeroRotator);
+			}
+			
 		}
 		else
 		{

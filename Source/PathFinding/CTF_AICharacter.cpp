@@ -17,6 +17,9 @@ void ACTF_AICharacter::BeginPlay()
 {
 	m_StateMachine = NewObject<UCTFStateMachine>();
 	Super::BeginPlay();
+	m_StateMachine->p_Flag = p_Flag;
+	m_StateMachine->p_MyBase = p_MyBase;
+	m_StateMachine->p_PlayerBase = p_PlayerBase;
 }
 
 // Called every frame

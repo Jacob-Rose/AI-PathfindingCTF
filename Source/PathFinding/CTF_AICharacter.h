@@ -32,4 +32,11 @@ public:
 
 	bool HasFlag();
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	AActor* p_PlayerBase = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	AActor* p_MyBase = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	AActor* p_Flag = nullptr;
+
 };

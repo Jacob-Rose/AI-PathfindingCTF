@@ -28,7 +28,8 @@ void ASteeringActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	// steering
 	SteeringVelocity += (SteeringVelocity * DragForce * DeltaTime);
-	SteeringVelocity += (Seek() * SeekStrength * DeltaTime);
+	SteeringVelocity += (targetDir * SeekStrength * DeltaTime);
+	//TODO make avoid work on targetdir
 	SteeringVelocity += (Avoid() * DeltaTime * AvoidStrength);
 
 	// limit Speed
@@ -38,7 +39,7 @@ void ASteeringActor::Tick(float DeltaTime)
 	}
 }
 
-FVector ASteeringActor::Seek()
+void ASteeringActor::Seek()
 {
 	FVector dir = TargetPos - Position;
 	float distance = dir.Size();
@@ -48,7 +49,7 @@ FVector ASteeringActor::Seek()
 	const float maxSpeedDistance = 500.0f;
 	float speedRatio = FMath::Clamp(distance / SeekDecelerationDistance, 0.0f, 1.0f);
 
-	return dir * speedRatio;
+	targetDir = dir * speedRatio;
 }
 
 FVector ASteeringActor::Avoid()
@@ -60,34 +61,35 @@ FVector ASteeringActor::Avoid()
 	FVector pos = GetActorLocation();
 	FCollisionQueryParams cqp;
 	cqp.AddIgnoredActor(this);
-	DrawDebugSphere(GetWorld(), pos, 5.0f, 8, FColor::Blue, false, 1.0f);
-	DrawDebugSphere(GetWorld(), pos + (GetActorForwardVector() * (Radius + 100.0f)), 5.0f, 8, FColor::Blue, false, 1.0f);
+	//DrawDebugSphere(GetWorld(), pos, 5.0f, 8, FColor::Blue, false, 1.0f);
+	//DrawDebugSphere(GetWorld(), pos + (GetActorForwardVector() * (Radius + 100.0f)), 5.0f, 8, FColor::Blue, false, 1.0f);
 	FVector lftOffset = FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector) * Radius;
 	lftHitBool = GetWorld()->LineTraceSingleByObjectType(lftHit, pos + lftOffset,
 		pos + (GetActorForwardVector() * (Radius + 100.0f)) + lftOffset, FCollisionObjectQueryParams::AllObjects, cqp);
 	rgtHitBool = GetWorld()->LineTraceSingleByObjectType(rgtHit, pos - lftOffset,
 		pos + (GetActorForwardVector() * (Radius + 100.0f)) - lftOffset, FCollisionObjectQueryParams::AllObjects, cqp);
+	FVector result = FVector::ZeroVector;
 	if (lftHitBool && rgtHitBool)
 	{
 		if (lftHit.Distance > rgtHit.Distance)
 		{
 			//turnleft
-			return FVector::CrossProduct(GetActorForwardVector(), -FVector::UpVector);
+			result = FVector::CrossProduct(GetActorForwardVector(), -FVector::UpVector);
 		}
 		else
 		{
 			//turnright
-			return FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
+			result = FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
 		}
 	}
 	else if (lftHitBool)
 	{
-		return FVector::CrossProduct(GetActorForwardVector(), -FVector::UpVector);
+		result = FVector::CrossProduct(GetActorForwardVector(), -FVector::UpVector);
 	}
 	else if (rgtHitBool)
 	{
 		
-		return FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
+		result= FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
 	}
-	return FVector::ZeroVector;
+	return result;
 }

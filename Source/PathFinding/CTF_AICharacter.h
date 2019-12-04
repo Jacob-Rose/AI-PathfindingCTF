@@ -30,8 +30,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	bool HasFlag();
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	AActor* p_PlayerBase = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

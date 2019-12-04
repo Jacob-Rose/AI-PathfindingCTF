@@ -23,18 +23,22 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool HasFlag = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float m_MaxSpeed;
 	UFUNCTION(BlueprintCallable)
-	void TryFireBullet(FVector dir);
-
+	void TryFireBullet(FRotator dir);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> bulletType;
 
+	bool HasFlag();
+
+
 protected:
+
 	FVector Position = FVector(0, 0, 0);
 	UPROPERTY(BlueprintReadWrite)
 	FVector SteeringVelocity = FVector(0,0,0);
 
-	AActor* currentBullet;
+	AActor* m_CurrentBullet;
+
+	int m_Score;
 };

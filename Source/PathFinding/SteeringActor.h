@@ -25,9 +25,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-
-	FVector Seek();
+	UFUNCTION(BlueprintCallable)
+	void Seek();
 	FVector Avoid();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector targetDir = FVector(0, 0, 0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	float MinSpeed = 20.0f;

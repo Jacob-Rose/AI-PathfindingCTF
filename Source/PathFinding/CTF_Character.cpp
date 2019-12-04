@@ -2,6 +2,7 @@
 
 
 #include "CTF_Character.h"
+#include <Engine/World.h>
 #include <Runtime\Engine\Classes\Kismet\KismetMathLibrary.h>
 
 // Sets default values
@@ -29,15 +30,23 @@ void ACTF_Character::Tick(float DeltaTime)
 	Position = GetActorLocation();
 
 	// orientation 
-	//FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(Position, Position + SteeringVelocity);
-	//SetActorRotation(PlayerRot);
+	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(Position, Position + SteeringVelocity);
+	SetActorRotation(PlayerRot);
 }
 
-void ACTF_Character::TryFireBullet(FVector dir)
+bool ACTF_Character::HasFlag()
 {
-	if (!IsValid(currentBullet))
-	{
+	TArray<AActor*> attached = TArray<AActor*>();
+	GetAttachedActors(attached);
+	return attached.Num() > 0;
+}
 
+void ACTF_Character::TryFireBullet(FRotator dir)
+{
+	FVector pos = GetActorLocation();
+	if (!IsValid(m_CurrentBullet))
+	{
+		m_CurrentBullet = GetWorld()->SpawnActor(bulletType, &pos, &dir);
 	}
 }
 

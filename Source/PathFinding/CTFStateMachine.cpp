@@ -46,7 +46,7 @@ void UCTFStateMachine::init(AActor* player, AActor* flag)
 		check(IsValid(pathfinder));
 		pursuitState = NewObject<UCTFPursuitFlagState>();
 		returnAndProtectState = NewObject<UCTFReturnAndProtectFlagState>();
-		returnAndProtectState->SetTarget(p_Flag);
+		returnAndProtectState->SetTarget(p_MyBase);
 		returnAndProtectState->SetPathfinder(pathfinder);
 		pursuitState->SetPathfinder(pathfinder);
 		pursuitState->SetTarget(p_Flag);
@@ -60,7 +60,13 @@ void UCTFStateMachine::cleanup()
 
 void UCTFReturnAndProtectFlagState::RunState(ACTF_AICharacter* controlledActor, float deltaTime)
 {
-
+	if (m_TimeSincePathFound > 1.0f && m_Target != nullptr && pathfinder != nullptr) //add check if player position and last path node distance greater than x
+	{
+		TArray<FVector> newPath = pathfinder->getPathFromToDjikstra(controlledActor->GetActorLocation(), m_Target->GetActorLocation());
+		controlledActor->SetPathToFollow(newPath);
+		m_TimeSincePathFound = 0.0f;
+	}
+	m_TimeSincePathFound += deltaTime;
 }
 UCTFReturnAndProtectFlagState::UCTFReturnAndProtectFlagState()
 {

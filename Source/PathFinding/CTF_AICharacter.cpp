@@ -5,6 +5,7 @@
 #include "EngineUtils.h"
 #include "CTFStateMachine.h"
 #include "PathfindingManager.h"
+#include <Runtime\Engine\Classes\Kismet\KismetMathLibrary.h>
 
 // Sets default values
 ACTF_AICharacter::ACTF_AICharacter()
@@ -16,10 +17,10 @@ ACTF_AICharacter::ACTF_AICharacter()
 void ACTF_AICharacter::BeginPlay()
 {
 	m_StateMachine = NewObject<UCTFStateMachine>();
-	Super::BeginPlay();
 	m_StateMachine->p_Flag = p_Flag;
 	m_StateMachine->p_MyBase = p_MyBase;
 	m_StateMachine->p_PlayerBase = p_PlayerBase;
+	Super::BeginPlay();
 }
 
 // Called every frame
@@ -29,11 +30,6 @@ void ACTF_AICharacter::Tick(float DeltaTime)
 	m_StateMachine->HandleState(this, DeltaTime);
 }
 
-bool ACTF_AICharacter::HasFlag()
-{
-	TArray<AActor*> attached = TArray<AActor*>();
-	GetAttachedActors(attached);
-	return attached.Num() > 0;
-}
+
 
 

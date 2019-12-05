@@ -64,10 +64,12 @@ FVector ASteeringActor::Avoid()
 	//DrawDebugSphere(GetWorld(), pos, 5.0f, 8, FColor::Blue, false, 1.0f);
 	//DrawDebugSphere(GetWorld(), pos + (GetActorForwardVector() * (Radius + 100.0f)), 5.0f, 8, FColor::Blue, false, 1.0f);
 	FVector lftOffset = FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector) * Radius;
-	lftHitBool = GetWorld()->LineTraceSingleByObjectType(lftHit, pos + lftOffset,
-		pos + (GetActorForwardVector() * (Radius + 100.0f)) + lftOffset, FCollisionObjectQueryParams::AllObjects, cqp);
-	rgtHitBool = GetWorld()->LineTraceSingleByObjectType(rgtHit, pos - lftOffset,
-		pos + (GetActorForwardVector() * (Radius + 100.0f)) - lftOffset, FCollisionObjectQueryParams::AllObjects, cqp);
+	lftHitBool = GetWorld()->LineTraceSingleByChannel(lftHit, pos + lftOffset,
+		pos + (GetActorForwardVector() * (Radius + 100.0f)) + lftOffset, ECollisionChannel::ECC_WorldDynamic, cqp);
+	rgtHitBool = GetWorld()->LineTraceSingleByChannel(rgtHit, pos - lftOffset,
+		pos + (GetActorForwardVector() * (Radius + 100.0f)) - lftOffset, ECollisionChannel::ECC_WorldDynamic, cqp);
+	/*rgtHitBool = GetWorld()->LineTraceSingleByObjectType(rgtHit, pos - lftOffset,
+		pos + (GetActorForwardVector() * (Radius + 100.0f)) - lftOffset, FCollisionObjectQueryParams::AllObjects, cqp);*/
 	FVector result = FVector::ZeroVector;
 	if (lftHitBool && rgtHitBool)
 	{
@@ -92,4 +94,9 @@ FVector ASteeringActor::Avoid()
 		result= FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
 	}
 	return result;
+}
+
+FVector ASteeringActor::AvoidBullet()
+{
+	return FVector();
 }

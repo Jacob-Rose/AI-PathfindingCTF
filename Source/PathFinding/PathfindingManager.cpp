@@ -33,8 +33,8 @@ void APathfindingManager::generateWalls()
 	int eCheck = 0;
 	for (int i = 0; i < wallCount; i++)
 	{
-		int xPos = rand() % 32;
-		int yPos = rand() % 32;
+		int xPos = rand() % xHeight;
+		int yPos = rand() % yHeight;
 		if (!nodes[xPos][yPos].isWall()) //he patrols in 10 < x < 14 && 10 < y < 14
 		{
 			FVector pos = getWorldPositionFromGridPosition(nodes[xPos][yPos].getGridPos());

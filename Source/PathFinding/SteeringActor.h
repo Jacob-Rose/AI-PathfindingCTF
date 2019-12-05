@@ -28,6 +28,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void Seek();
 	FVector Avoid();
+	FVector AvoidBullet();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector targetDir = FVector(0, 0, 0);

@@ -15,9 +15,13 @@ UCTFStateMachine::~UCTFStateMachine()
 
 void UCTFStateMachine::HandleState(ACTF_AICharacter* seeker, float deltaTime)
 {
-	if (seeker->HasFlag())
+	if (seeker->HasFlag)
 	{
 		ChangeToState(returnAndProtectState); //change to state checks if already the state
+	}
+	else
+	{
+		ChangeToState(pursuitState);
 	}
 	m_CurrentState->RunState(seeker, deltaTime);
 }

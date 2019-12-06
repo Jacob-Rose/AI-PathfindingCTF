@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "PathFindingActor.h"
 #include "CTF_AICharacter.generated.h"
 

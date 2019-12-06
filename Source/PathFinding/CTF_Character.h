@@ -26,10 +26,14 @@ public:
 	float m_MaxSpeed;
 	UFUNCTION(BlueprintCallable)
 	void TryFireBullet(FRotator dir);
+
+	UFUNCTION(BlueprintCallable)
+	void TryDestroyBullet();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> bulletType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool HasFlag;
 
-	bool HasFlag();
 
 
 protected:

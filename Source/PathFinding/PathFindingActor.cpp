@@ -3,6 +3,7 @@
 
 #include "PathFindingActor.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Engine/World.h"
 
 
 void APathFindingActor::SetPathToFollow(const TArray<FVector>& newPath)
@@ -27,6 +28,7 @@ void APathFindingActor::BeginPlay()
 void APathFindingActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	Seek();
 
 	if (NeedNewDestination)
 	{

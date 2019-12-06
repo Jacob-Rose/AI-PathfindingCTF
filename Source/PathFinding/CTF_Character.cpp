@@ -25,6 +25,7 @@ void ACTF_Character::BeginPlay()
 void ACTF_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	Position = GetActorLocation();
 	Position += (SteeringVelocity * DeltaTime);
 	SetActorLocation(Position, true);
 	Position = GetActorLocation();
@@ -34,19 +35,20 @@ void ACTF_Character::Tick(float DeltaTime)
 	SetActorRotation(PlayerRot);
 }
 
-bool ACTF_Character::HasFlag()
-{
-	TArray<AActor*> attached = TArray<AActor*>();
-	GetAttachedActors(attached);
-	return attached.Num() > 0;
-}
-
 void ACTF_Character::TryFireBullet(FRotator dir)
 {
-	FVector pos = GetActorLocation();
+	FVector pos = GetActorLocation() + (dir.Vector() * GetSimpleCollisionRadius());
 	if (!IsValid(m_CurrentBullet))
 	{
 		m_CurrentBullet = GetWorld()->SpawnActor(bulletType, &pos, &dir);
+	}
+}
+
+void ACTF_Character::TryDestroyBullet()
+{
+	if (IsValid(m_CurrentBullet))
+	{
+		m_CurrentBullet->Destroy();
 	}
 }
 

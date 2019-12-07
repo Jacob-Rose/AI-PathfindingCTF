@@ -156,13 +156,16 @@ void UCTFPursuitFlagState::RunState(ACTF_AICharacter* controlledActor, float del
 	{
 		m_TimeSincePathFound = MAX_FLT;
 	}
+	else
+	{
+		m_TimeSincePathFound += deltaTime;
+	}
 	if (m_TimeSincePathFound > 1.0f && m_Target != nullptr && pathfinder != nullptr) //add check if player position and last path node distance greater than x
 	{
 		TArray<FVector> newPath = pathfinder->getPathFromToDjikstra(controlledActor->GetActorLocation(), m_Target->GetActorLocation());
 		controlledActor->SetPathToFollow(newPath);
 		m_TimeSincePathFound = 0.0f;
 	}
-	m_TimeSincePathFound += deltaTime;
 }
 
 void UCTFReturnAndProtectFlagState::OnStateExit()

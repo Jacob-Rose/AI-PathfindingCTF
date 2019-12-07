@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CTF_Character.h"
+#include "Misc/Optional.h"
 #include "SteeringActor.generated.h"
 
 UCLASS()
@@ -24,11 +25,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	bool TargetPosExist();
+
 protected:
 	UFUNCTION(BlueprintCallable)
 	void Seek();
-	FVector Avoid();
-	FVector AvoidBullet();
+	void Avoid();
+	void AvoidBullet();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector targetDir = FVector(0, 0, 0);
@@ -48,9 +51,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	float SeekDecelerationDistance = 1200.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector TargetPos = FVector(0, 0, 0);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
-	float Radius = 25.0f;
+	float BulletDetectionRange = 500.0f;
+
+	TOptional<FVector> TargetPos = TOptional<FVector>();
+
+
 };

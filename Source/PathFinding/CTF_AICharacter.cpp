@@ -26,6 +26,7 @@ void ACTF_AICharacter::BeginPlay()
 // Called every frame
 void ACTF_AICharacter::Tick(float DeltaTime)
 {
+	AvoidBullet();
 	Super::Tick(DeltaTime);
 	m_StateMachine->HandleState(this, DeltaTime);
 }

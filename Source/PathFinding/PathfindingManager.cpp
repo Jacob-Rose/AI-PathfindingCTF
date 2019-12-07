@@ -62,6 +62,7 @@ void APathfindingManager::generateWalls()
 				m_WallPositions.Add(pos);
 
 				AActor* wall = GetWorld()->SpawnActor(wallClass, &pos, &FRotator::ZeroRotator);
+				Walls.Add(wall);
 			}
 			
 		}

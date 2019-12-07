@@ -35,7 +35,7 @@ void UCTFStateMachine::ChangeToState(UCTFState* state)
 	}
 }
 
-void UCTFStateMachine::init(AActor* player, AActor* flag)
+void UCTFStateMachine::init(ACTF_Character* player, AActor* flag)
 {
 	if (!m_IsInit)
 	{
@@ -54,6 +54,7 @@ void UCTFStateMachine::init(AActor* player, AActor* flag)
 		returnAndProtectState->SetPathfinder(pathfinder);
 		pursuitState->SetPathfinder(pathfinder);
 		pursuitState->SetTarget(p_Flag);
+		pursuitState->SetPlayer(p_Player);
 		ChangeToState(pursuitState);
 	}
 }
@@ -120,6 +121,11 @@ UCTFPursuitFlagState::~UCTFPursuitFlagState()
 {
 }
 
+void UCTFPursuitFlagState::SetPlayer(ACTF_Character* player)
+{
+	p_Player = player;
+}
+
 void UCTFPursuitFlagState::OnStateExit()
 {
 }
@@ -131,6 +137,25 @@ UCTFPursuitFlagState::UCTFPursuitFlagState()
 
 void UCTFPursuitFlagState::RunState(ACTF_AICharacter* controlledActor, float deltaTime)
 {
+	if (p_Player->HasFlag)
+	{
+		if (FVector::Dist(controlledActor->GetActorLocation(), p_Player ->GetActorLocation()) < controlledActor->m_MaxShootDist)
+		{
+			FCollisionQueryParams cqp;
+			cqp.AddIgnoredActor(p_Player);
+			cqp.AddIgnoredActor(controlledActor);
+			FHitResult hit;
+			if (!GetWorld()->LineTraceSingleByChannel(hit, p_Player->GetActorLocation(), controlledActor->GetActorLocation(), ECollisionChannel::ECC_WorldDynamic, cqp))
+			{
+				FVector dir = (p_Player->GetActorLocation() - controlledActor->GetActorLocation()).GetSafeNormal();
+				controlledActor->TryFireBullet(FVector2D(dir.X, dir.Y));
+			}
+		}
+	}
+	if (!controlledActor->TargetPosExist())
+	{
+		m_TimeSincePathFound = MAX_FLT;
+	}
 	if (m_TimeSincePathFound > 1.0f && m_Target != nullptr && pathfinder != nullptr) //add check if player position and last path node distance greater than x
 	{
 		TArray<FVector> newPath = pathfinder->getPathFromToDjikstra(controlledActor->GetActorLocation(), m_Target->GetActorLocation());

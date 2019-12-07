@@ -5,6 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "EngineUtils.h"
 
 // Sets default values
 ASteeringActor::ASteeringActor()
@@ -26,34 +27,36 @@ void ASteeringActor::BeginPlay()
 void ASteeringActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// steering
-	SteeringVelocity += (SteeringVelocity * DragForce * DeltaTime);
-	SteeringVelocity += (targetDir * SeekStrength * DeltaTime);
-	//TODO make avoid work on targetdir
-	SteeringVelocity += (Avoid() * DeltaTime * AvoidStrength);
+	SetSteeringVelocity(GetSteeringVelocity()
+		+ (GetSteeringVelocity() * DragForce * DeltaTime)
+		+ (targetDir.GetSafeNormal() * m_MaxSpeed));
+	targetDir = FVector(0, 0, 0);
+}
 
-	// limit Speed
-	if (SteeringVelocity.Size() > m_MaxSpeed)
-	{
-		SteeringVelocity = SteeringVelocity.GetSafeNormal() * m_MaxSpeed;
-	}
+bool ASteeringActor::TargetPosExist()
+{
+	return TargetPos.IsSet();
 }
 
 void ASteeringActor::Seek()
 {
-	FVector dir = TargetPos - Position;
-	float distance = dir.Size();
-	dir.Z = 0; // consider only 2d plane
-	dir = dir / dir.Size();
+	if (TargetPos.IsSet())
+	{
+		FVector dir = TargetPos.GetValue() - Position;
+		float distance = dir.Size();
+		dir.Z = 0; // consider only 2d plane
+		dir = dir / dir.Size();
 
-	const float maxSpeedDistance = 500.0f;
-	float speedRatio = FMath::Clamp(distance / SeekDecelerationDistance, 0.0f, 1.0f);
+		const float maxSpeedDistance = 500.0f;
+		float speedRatio = FMath::Clamp(distance / SeekDecelerationDistance, 0.0f, 1.0f);
 
-	targetDir = dir * speedRatio;
+		targetDir += (dir.GetSafeNormal()) * SeekStrength;
+	}
 }
 
-FVector ASteeringActor::Avoid()
+void ASteeringActor::Avoid()
 {
+	/*
 	FHitResult lftHit;
 	bool lftHitBool;
 	FHitResult rgtHit;
@@ -69,34 +72,59 @@ FVector ASteeringActor::Avoid()
 	rgtHitBool = GetWorld()->LineTraceSingleByChannel(rgtHit, pos - lftOffset,
 		pos + (GetActorForwardVector() * (Radius + 100.0f)) - lftOffset, ECollisionChannel::ECC_WorldDynamic, cqp);
 	/*rgtHitBool = GetWorld()->LineTraceSingleByObjectType(rgtHit, pos - lftOffset,
-		pos + (GetActorForwardVector() * (Radius + 100.0f)) - lftOffset, FCollisionObjectQueryParams::AllObjects, cqp);*/
+		pos + (GetActorForwardVector() * (Radius + 100.0f)) - lftOffset, FCollisionObjectQueryParams::AllObjects, cqp);
 	FVector result = FVector::ZeroVector;
 	if (lftHitBool && rgtHitBool)
 	{
 		if (lftHit.Distance > rgtHit.Distance)
 		{
 			//turnleft
-			result = FVector::CrossProduct(GetActorForwardVector(), -FVector::UpVector);
+			result = FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
 		}
 		else
 		{
 			//turnright
-			result = FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
+			result = FVector::CrossProduct(GetActorForwardVector(), -FVector::UpVector);
 		}
 	}
 	else if (lftHitBool)
 	{
-		result = FVector::CrossProduct(GetActorForwardVector(), -FVector::UpVector);
+		result = FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
 	}
 	else if (rgtHitBool)
 	{
 		
-		result= FVector::CrossProduct(GetActorForwardVector(), FVector::UpVector);
+		result= FVector::CrossProduct(GetActorForwardVector(), -FVector::UpVector);
 	}
-	return result;
+	*/
+	FVector result = FVector::ZeroVector;
+	targetDir += result.GetSafeNormal() * AvoidStrength;
 }
 
-FVector ASteeringActor::AvoidBullet()
+void ASteeringActor::AvoidBullet()
 {
-	return FVector();
+	FVector myTargetDir = FVector(0, 0, 0);
+	for (int i = 0; i < sm_Bullets.Num(); i++)
+	{
+		if (sm_Bullets[i] == nullptr || !sm_Bullets[i]->IsValidLowLevel() || !IsValid(sm_Bullets[i]))
+		{
+			sm_Bullets.RemoveAt(i);
+			--i;
+		}
+		else
+		{
+			if (FVector::DistSquared(sm_Bullets[i]->GetActorLocation(), GetActorLocation()) < BulletDetectionRange * BulletDetectionRange 
+				&& FVector::DotProduct(sm_Bullets[i]->GetActorForwardVector(), GetActorLocation() - sm_Bullets[i]->GetActorLocation()) > 0.0f) //coming towards me
+			{
+				float dist = FVector::Distance(sm_Bullets[i]->GetActorLocation(), GetActorLocation());
+				float dirMultiplier = 1.0f;
+				if (FVector::DotProduct(FVector::CrossProduct(sm_Bullets[i]->GetActorForwardVector(), FVector::UpVector), GetActorLocation() - sm_Bullets[i]->GetActorLocation()) > 0.0f)
+				{
+					dirMultiplier = -1.0f;
+				}
+				myTargetDir -= FVector::CrossProduct(sm_Bullets[i]->GetActorForwardVector(), FVector::UpVector) * (dist / BulletDetectionRange) * dirMultiplier;
+			}
+		}
+	}
+	targetDir += myTargetDir.GetSafeNormal() * AvoidStrength;
 }

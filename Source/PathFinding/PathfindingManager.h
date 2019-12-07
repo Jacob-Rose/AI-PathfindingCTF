@@ -94,12 +94,15 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<AActor> wallClass;
+
+	TArray<AActor*> Walls;
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<FBox2D> m_ProhibitedSpawns;
-	Node nodes[40][40];
-	int xHeight = 40;
-	int yHeight = 40;
+	static const int xHeight = 40;
+	static const int yHeight = 40;
+	Node nodes[xHeight][yHeight];
+
 	float nodeSize = 3000.0f/40.0f;
 	float seekerRadius = 25.0f;
 protected:

@@ -5,6 +5,8 @@
 #include <Engine/World.h>
 #include <Runtime\Engine\Classes\Kismet\KismetMathLibrary.h>
 
+TArray<AActor*> ACTF_Character::sm_Bullets = TArray<AActor*>();
+
 // Sets default values
 ACTF_Character::ACTF_Character()
 {
@@ -26,29 +28,51 @@ void ACTF_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Position = GetActorLocation();
-	Position += (SteeringVelocity * DeltaTime);
+	Position += (GetSteeringVelocity() * DeltaTime);
 	SetActorLocation(Position, true);
 	Position = GetActorLocation();
 
 	// orientation 
-	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(Position, Position + SteeringVelocity);
+	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(Position, Position + GetSteeringVelocity());
 	SetActorRotation(PlayerRot);
 }
 
-void ACTF_Character::TryFireBullet(FRotator dir)
+bool ACTF_Character::TryFireBullet(FVector2D dirVec)
 {
-	FVector pos = GetActorLocation() + (dir.Vector() * GetSimpleCollisionRadius());
-	if (!IsValid(m_CurrentBullet))
+	FVector pos = GetActorLocation() + (FVector(dirVec.X, dirVec.Y, 0) * Radius);
+
+	FRotator dir = FVector(dirVec.X, dirVec.Y, 0).Rotation();
+	if (m_CurrentBullet == nullptr || !m_CurrentBullet->IsValidLowLevel() || !IsValid(m_CurrentBullet))
 	{
 		m_CurrentBullet = GetWorld()->SpawnActor(bulletType, &pos, &dir);
+		sm_Bullets.Add(m_CurrentBullet);
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
 void ACTF_Character::TryDestroyBullet()
 {
-	if (IsValid(m_CurrentBullet))
+	if (m_CurrentBullet != nullptr || m_CurrentBullet->IsValidLowLevel() || IsValid(m_CurrentBullet))
 	{
 		m_CurrentBullet->Destroy();
 	}
+}
+
+void ACTF_Character::SetSteeringVelocity(FVector sv)
+{
+	SteeringVelocity = FVector2D(sv.X, sv.Y);
+	if (SteeringVelocity.Size() > m_MaxSpeed)
+	{
+		SteeringVelocity = SteeringVelocity.GetSafeNormal() * m_MaxSpeed;
+	}
+}
+
+FVector ACTF_Character::GetSteeringVelocity()
+{
+	return FVector(SteeringVelocity.X, SteeringVelocity.Y, 0);
 }
 

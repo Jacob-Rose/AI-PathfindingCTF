@@ -53,8 +53,10 @@ public:
 
 	UCTFPursuitFlagState();
 	~UCTFPursuitFlagState();
-private:
 
+	void SetPlayer(ACTF_Character* player);
+protected:
+	ACTF_Character* p_Player;
 };
 
 UCLASS()
@@ -89,11 +91,11 @@ public:
 	void ChangeToState(UCTFState* state);
 
 	UFUNCTION(BlueprintCallable)
-	void init(AActor* player, AActor* flag);
+	void init(ACTF_Character* player, AActor* flag);
 	void cleanup();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		AActor* p_Player = nullptr;
+		ACTF_Character* p_Player = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		AActor* p_PlayerBase = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

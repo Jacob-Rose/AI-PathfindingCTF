@@ -59,6 +59,7 @@ void ACTF_Character::TryDestroyBullet()
 	if (m_CurrentBullet != nullptr || m_CurrentBullet->IsValidLowLevel() || IsValid(m_CurrentBullet))
 	{
 		m_CurrentBullet->Destroy();
+		m_CurrentBullet = nullptr;
 	}
 }
 
